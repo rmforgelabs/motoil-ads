@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RM Forge Labs | Practical Android apps for vehicle owners</title>
+<meta name="description" content="RM Forge Labs builds practical Android apps for people who maintain their own vehicles. Our first app, MoToil, tracks oil changes and tuning jobs.">
+<meta name="theme-color" content="#0e0f11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f11;
+    --panel: #16181b;
+    --panel-2: #1c1f23;
+    --ink: #f1f0ed;
+    --muted: #9ba1a9;
+    --line: #2a2d32;
+    --amber: #f4a62a;
+    --amber-soft: rgba(244, 166, 42, 0.14);
+    --ease: cubic-bezier(.2, .7, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; position: relative; }
+
+  /* Background glow + grid */
+  .bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .bg::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: .28;
+    mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
+  }
+  .bg::after {
+    content: ""; position: absolute; width: 38rem; height: 38rem; left: 50%; top: -14rem;
+    margin-left: -19rem; border-radius: 50%;
+    background: radial-gradient(circle, var(--amber-soft), transparent 65%);
+    animation: drift 14s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: translate(6rem, 3rem) scale(1.1); } }
+
+  /* Header */
+  header.site {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgba(14, 15, 17, .72);
+    border-bottom: 1px solid var(--line);
+  }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 4rem; }
+  .brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  .brand i {
+    width: 1.5rem; height: 1.5rem; border-radius: 6px; background: var(--amber);
+    display: grid; place-items: center; transition: transform .5s var(--ease);
+  }
+  .brand i::after { content: ""; width: .5rem; height: .75rem; background: var(--bg); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
+  .brand:hover i { transform: rotate(-12deg) scale(1.08); }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 1.6rem; font-size: .92rem; font-weight: 500; position: relative; transition: color .2s; }
+  nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--amber); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease); }
+  nav a:hover { color: var(--ink); }
+  nav a:hover::after { transform: scaleX(1); }
+  @media (max-width: 40rem) { nav a:nth-child(-n+2) { display: none; } }
+
+  /* Hero */
+  .hero { padding: 5.5rem 0 5rem; display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 56rem) { .hero { grid-template-columns: 1.15fr .85fr; } }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6.2vw, 4.2rem); line-height: 1.04; letter-spacing: -0.035em;
+    font-weight: 800; margin: 0 0 1.4rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(100deg, var(--amber), #ffd37a 45%, var(--amber));
+    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: sheen 6s linear infinite;
+  }
+  @keyframes sheen { to { background-position: -220% 0; } }
+  .hero p { color: var(--muted); font-size: 1.12rem; max-width: 34rem; margin: 0 0 2rem; }
+  .btns { display: flex; gap: .8rem; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: .8rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: .95rem;
+    text-decoration: none; transition: transform .25s var(--ease), background .25s, border-color .25s, box-shadow .25s;
+  }
+  .btn.primary { background: var(--amber); color: #1a1205; }
+  .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -8px rgba(244,166,42,.55); }
+  .btn.ghost { border: 1px solid var(--line); color: var(--ink); }
+  .btn.ghost:hover { border-color: var(--amber); transform: translateY(-2px); }
+
+  /* Entrance sequence */
+  .rise { opacity: 0; transform: translateY(18px); animation: rise .8s var(--ease) forwards; }
+  .d1 { animation-delay: .05s; } .d2 { animation-delay: .18s; } .d3 { animation-delay: .3s; } .d4 { animation-delay: .45s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* Odometer card (the one memorable element) */
+  .gauge {
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line); border-radius: 18px; padding: 1.6rem;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.8);
+    position: relative; overflow: hidden;
+  }
+  .gauge::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--amber), transparent);
+    animation: scan 3.5s ease-in-out infinite;
+  }
+  @keyframes scan { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
+  .gauge small { color: var(--muted); font-size: .85rem; font-weight: 500; }
+  .odo { display: flex; align-items: baseline; gap: .5rem; margin: .5rem 0 1.2rem; }
+  .odo b { font-size: clamp(2.8rem, 8vw, 3.8rem); font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .odo span { color: var(--muted); font-weight: 500; }
+  .bar { height: 10px; background: #0b0c0d; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
+  .bar div { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #c47a0c, var(--amber)); transition: width 2.2s var(--ease); }
+  .rows { margin-top: 1.4rem; display: grid; gap: .6rem; font-size: .9rem; }
+  .rows div { display: flex; justify-content: space-between; color: var(--muted); border-top: 1px solid var(--line); padding-top: .6rem; }
+  .rows b { color: var(--ink); font-weight: 600; }
+  .gauge .note { margin: 1rem 0 0; font-size: .75rem; color: #6b7178; }
+
+  /* Sections */
+  section { padding: 4.5rem 0; border-top: 1px solid var(--line); }
+  .cols { display: grid; gap: 1.5rem 3.5rem; }
+  @media (min-width: 52rem) { .cols { grid-template-columns: 13rem 1fr; } }
+  h2 { font-size: 1.5rem; letter-spacing: -0.025em; font-weight: 700; margin: 0; line-height: 1.2; }
+  .lead { font-size: 1.6rem; line-height: 1.35; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 1rem; max-width: 36rem; }
+  .muted { color: var(--muted); max-width: 38rem; margin: 0; }
+
+  .grid { display: grid; gap: 1rem; margin-top: 1.8rem; }
+  @media (min-width: 40rem) { .grid { grid-template-columns: 1fr 1fr; } }
+  .item {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.5rem;
+    transition: transform .35s var(--ease), border-color .35s, background .35s;
+  }
+  .item:hover { transform: translateY(-4px); border-color: rgba(244,166,42,.55); background: var(--panel-2); }
+  .item .ic {
+    width: 2.4rem; height: 2.4rem; border-radius: 10px; background: var(--amber-soft); color: var(--amber);
+    display: grid; place-items: center; margin-bottom: 1rem; transition: transform .4s var(--ease);
+  }
+  .item:hover .ic { transform: rotate(-8deg) scale(1.1); }
+  .ic svg { width: 1.2rem; height: 1.2rem; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .item h3 { margin: 0 0 .4rem; font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
+  .item p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+  /* Process with growing line */
+  .steps { list-style: none; margin: 0; padding: 0 0 0 2.2rem; position: relative; }
+  .steps::before { content: ""; position: absolute; left: .55rem; top: .4rem; bottom: .4rem; width: 2px; background: var(--line); }
+  .steps .fill { position: absolute; left: .55rem; top: .4rem; width: 2px; height: 0; background: var(--amber); transition: height .2s linear; }
+  .steps li { position: relative; padding: 0 0 1.8rem; }
+  .steps li:last-child { padding-bottom: 0; }
+  .steps li::before {
+    content: ""; position: absolute; left: -2.2rem; top: .35rem; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--line); transition: border-color .4s, background .4s, box-shadow .4s;
+  }
+  .steps li.on::before { border-color: var(--amber); background: var(--amber); box-shadow: 0 0 0 5px var(--amber-soft); }
+  .steps strong { display: block; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .steps span { color: var(--muted); font-size: .96rem; }
+
+  /* App card */
+  .app {
+    border: 1px solid var(--line); border-radius: 18px; padding: 2rem;
+    background: radial-gradient(120% 140% at 100% 0%, var(--amber-soft), transparent 55%), var(--panel);
+    transition: border-color .35s, transform .35s var(--ease);
+  }
+  .app:hover { border-color: rgba(244,166,42,.55); transform: translateY(-3px); }
+  .app h3 { margin: 0 0 .5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+  .app p { color: var(--muted); max-width: 38rem; margin: 0 0 1.1rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
+  .tags span { border: 1px solid var(--line); border-radius: 99px; padding: .3rem .8rem; font-size: .83rem; color: var(--ink); background: var(--bg); }
+  .pkg { font-family: Consolas, "Courier New", monospace; font-size: .82rem; color: #6b7178; margin: 0; }
+
+  footer { border-top: 1px solid var(--line); padding: 2rem 0 3rem; color: var(--muted); font-size: .88rem; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  :focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .rise, .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>RM Forge Labs</a>
+    <nav aria-label="Main">
+      <a href="#mission">Mission</a>
+      <a href="#what">What we do</a>
+      <a href="#how">How we do it</a>
+      <a href="#apps">Apps</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <div>
+      <h1 class="rise d1">Practical apps for people who <em>maintain their own vehicles.</em></h1>
+      <p class="rise d2">RM Forge Labs is an independent Android app studio. We build focused tools that remove guesswork from vehicle upkeep, so nothing gets missed and nothing gets over-serviced.</p>
+      <div class="btns rise d3">
+        <a class="btn primary" href="#apps">See our app</a>
+        <a class="btn ghost" href="#how">How we work</a>
+      </div>
+    </div>
+
+    <div class="gauge rise d4" aria-label="Illustration of an oil change reminder">
+      <small>Next oil change in</small>
+      <div class="odo"><b id="odo">0</b><span>km</span></div>
+      <div class="bar" role="presentation"><div id="fill"></div></div>
+      <div class="rows">
+        <div>Last service <b>Engine oil + filter</b></div>
+        <div>Reminder <b>Scheduled</b></div>
+      </div>
+      <p class="note">Illustration of the kind of reminder MoToil provides.</p>
+    </div>
+  </div>
+
+  <section id="mission">
+    <div class="wrap cols reveal">
+      <h2>Our mission</h2>
+      <div>
+        <p class="lead">Make routine vehicle maintenance simple, organized, and hard to forget.</p>
+        <p class="muted">Most maintenance mistakes come from missed dates and lost records, not from a lack of skill. We build apps that keep the history in one place and tell you when the next job is due, for everyday riders, drivers, and home mechanics.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="what">
+    <div class="wrap cols reveal">
+      <h2>What we do</h2>
+      <div>
+        <p class="muted">We design, build, and publish Android apps. Each one solves a single problem well, is easy to pick up, and respects the person using it.</p>
+        <div class="grid">
+          <div class="item">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+            <h3>Maintenance tracking</h3>
+            <p>Record oil changes, tuning jobs, and service history for every vehicle you own.</p>
+          </div>
+          <div class="item">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></div>
+            <h3>Timely reminders</h3>
+            <p>Get notified when service is due, based on the schedule you set.</p>
+          </div>
+          <div class="item">
+            <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></div>
+            <h3>Clear records</h3>
+            <p>Keep a simple, readable log to check before a service or when selling a vehicle.</p>
+          </div>
+          <div class="item">
+            <div class="ic"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+            <h3>Built for Android</h3>
+            <p>Apps built with Flutter and published through Google Play.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap cols reveal">
+      <h2>How we do it</h2>
+      <ol class="steps" id="steps">
+        <div class="fill" id="stepfill"></div>
+        <li>
+          <strong>Start with a real problem</strong>
+          <span>Every app begins with a task people actually struggle to keep track of, not a feature list.</span>
+        </li>
+        <li>
+          <strong>Keep it focused</strong>
+          <span>We include what the job needs and leave out the rest, so the app stays fast and easy to use.</span>
+        </li>
+        <li>
+          <strong>Build and test carefully</strong>
+          <span>We build with Flutter, test on real devices, and check reminders and data handling before every release.</span>
+        </li>
+        <li>
+          <strong>Follow the rules</strong>
+          <span>Our apps are built to comply with Google Play policies, and we handle user data only as far as the app needs to work.</span>
+        </li>
+        <li>
+          <strong>Improve with feedback</strong>
+          <span>We read user reviews and ship updates that fix problems and add what people ask for.</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="apps">
+    <div class="wrap cols reveal">
+      <h2>Our apps</h2>
+      <div class="app">
+        <h3>MoToil: Oil Change Tracker</h3>
+        <p>An Android app that tracks oil changes and tuning jobs and reminds you when the next one is due.</p>
+        <div class="tags"><span>Service log</span><span>Maintenance reminders</span><span>Vehicle history</span></div>
+        <p class="pkg">com.rmforgelabs.motoil</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 RM Forge Labs. All rights reserved.</span>
+    <span>Independent Android app studio</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var odo = document.getElementById('odo');
+  var fill = document.getElementById('fill');
+  var target = 1240, pct = 76;
+
+  function fmt(n) { return n.toLocaleString('en-US'); }
+
+  if (reduce) {
+    odo.textContent = fmt(target);
+    fill.style.transition = 'none';
+    fill.style.width = pct + '%';
+  } else {
+    var start = null, dur = 2200;
+    setTimeout(function () {
+      fill.style.width = pct + '%';
+      requestAnimationFrame(function tick(t) {
+        if (!start) start = t;
+        var p = Math.min((t - start) / dur, 1);
+        var e = 1 - Math.pow(1 - p, 3);
+        odo.textContent = fmt(Math.round(target * e));
+        if (p < 1) requestAnimationFrame(tick);
+      });
+    }, 700);
+  }
+
+  // Scroll reveal
+  var items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  } else {
+    items.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // Process line fills as you scroll
+  var list = document.getElementById('steps');
+  var lis = list.querySelectorAll('li');
+  var line = document.getElementById('stepfill');
+  function update() {
+    var r = list.getBoundingClientRect();
+    var vh = window.innerHeight;
+    var prog = (vh * 0.6 - r.top) / r.height;
+    prog = Math.max(0, Math.min(1, prog));
+    line.style.height = (prog * (r.height - 12)) + 'px';
+    lis.forEach(function (li) {
+      var lr = li.getBoundingClientRect();
+      li.classList.toggle('on', lr.top < vh * 0.6);
+    });
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+</body>
+</html>
