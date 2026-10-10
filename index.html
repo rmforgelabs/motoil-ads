@@ -3,210 +3,380 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RM Forge Labs | Practical Android apps for vehicle owners</title>
-<meta name="description" content="RM Forge Labs builds practical Android apps for people who maintain their own vehicles. Our first app, MoToil, tracks oil changes and tuning jobs.">
-<meta name="theme-color" content="#0e0f11">
+<title>RM Forge Labs | Mobile apps and games</title>
+<meta name="description" content="RM Forge Labs is an independent studio building practical Android apps and fun mobile games with Flutter and Unity.">
+<meta name="theme-color" content="#f3f1fa">
+<meta property="og:title" content="RM Forge Labs | Mobile apps and games">
+<meta property="og:description" content="Independent studio building practical Android apps and fun mobile games. Always open to new projects.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%233a2bff'/%3E%3Cpath d='M9 30V14l11 11 11-11v16' fill='none' stroke='white' stroke-width='5' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='9' r='3' fill='%23ff5a3c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0f11;
-    --panel: #16181b;
-    --panel-2: #1c1f23;
-    --ink: #f1f0ed;
-    --muted: #9ba1a9;
-    --line: #2a2d32;
-    --amber: #f4a62a;
-    --amber-soft: rgba(244, 166, 42, 0.14);
-    --ease: cubic-bezier(.2, .7, .2, 1);
+    --paper: #f3f1fa; --ink: #14112b; --blue: #3a2bff; --coral: #ff5a3c; --mist: #dcd8f0; --soft: #5c5878;
+    --head: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "DM Sans", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    --ease: cubic-bezier(.2,.7,.2,1);
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-  .wrap { max-width: 68rem; margin: 0 auto; padding: 0 1.5rem; position: relative; }
-
-  /* Background glow + grid */
-  .bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-  .bg::before {
-    content: ""; position: absolute; inset: 0;
-    background-image:
-      linear-gradient(var(--line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--line) 1px, transparent 1px);
-    background-size: 56px 56px;
-    opacity: .28;
-    mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 55% at 50% 0%, #000 20%, transparent 75%);
-  }
-  .bg::after {
-    content: ""; position: absolute; width: 38rem; height: 38rem; left: 50%; top: -14rem;
-    margin-left: -19rem; border-radius: 50%;
-    background: radial-gradient(circle, var(--amber-soft), transparent 65%);
-    animation: drift 14s ease-in-out infinite alternate;
-  }
-  @keyframes drift { to { transform: translate(6rem, 3rem) scale(1.1); } }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); line-height: 1.65; font-size: 1.05rem; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .wrap { max-width: 70rem; margin: 0 auto; padding: 0 1.5rem; }
+  h1, h2, h3 { font-family: var(--head); margin: 0; letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }
+  p { margin: 0; }
 
   /* Header */
-  header.site {
-    position: sticky; top: 0; z-index: 10;
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    background: rgba(14, 15, 17, .72);
-    border-bottom: 1px solid var(--line);
-  }
-  header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 4rem; }
-  .brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
-  .brand i {
-    width: 1.5rem; height: 1.5rem; border-radius: 6px; background: var(--amber);
-    display: grid; place-items: center; transition: transform .5s var(--ease);
-  }
-  .brand i::after { content: ""; width: .5rem; height: .75rem; background: var(--bg); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; }
-  .brand:hover i { transform: rotate(-12deg) scale(1.08); }
-  nav a { color: var(--muted); text-decoration: none; margin-left: 1.6rem; font-size: .92rem; font-weight: 500; position: relative; transition: color .2s; }
-  nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 2px; background: var(--amber); transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease); }
+  header.site { position: sticky; top: 0; z-index: 20; background: rgba(243,241,250,.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--mist); }
+  header.site .wrap { display: flex; align-items: center; justify-content: space-between; height: 4.2rem; }
+  .brand { display: flex; align-items: center; gap: .7rem; font-family: var(--head); font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+  .brand svg { width: 2.2rem; height: 2.2rem; transition: transform .5s var(--ease); }
+  .brand:hover svg { transform: rotate(-8deg); }
+  .brand:hover .spark { animation: pulse .6s var(--ease); transform-origin: 20px 9px; }
+  @keyframes pulse { 50% { transform: scale(1.8); } }
+  nav { display: flex; align-items: center; gap: 1.6rem; font-size: .95rem; font-weight: 500; }
+  nav a { color: var(--soft); text-decoration: none; transition: color .2s; }
   nav a:hover { color: var(--ink); }
-  nav a:hover::after { transform: scaleX(1); }
-  @media (max-width: 40rem) { nav a:nth-child(-n+2) { display: none; } }
+  nav a.cta { color: #fff; background: var(--ink); padding: .5rem 1.1rem; border-radius: 99px; transition: background .25s; }
+  nav a.cta:hover { background: var(--blue); }
+  @media (max-width: 44rem) { nav a:not(.cta) { display: none; } }
 
   /* Hero */
-  .hero { padding: 5.5rem 0 5rem; display: grid; gap: 3rem; align-items: center; }
-  @media (min-width: 56rem) { .hero { grid-template-columns: 1.15fr .85fr; } }
-  .hero h1 {
-    font-size: clamp(2.4rem, 6.2vw, 4.2rem); line-height: 1.04; letter-spacing: -0.035em;
-    font-weight: 800; margin: 0 0 1.4rem;
-  }
-  .hero h1 em {
-    font-style: normal;
-    background: linear-gradient(100deg, var(--amber), #ffd37a 45%, var(--amber));
-    background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: sheen 6s linear infinite;
-  }
-  @keyframes sheen { to { background-position: -220% 0; } }
-  .hero p { color: var(--muted); font-size: 1.12rem; max-width: 34rem; margin: 0 0 2rem; }
+  .hero { display: grid; gap: 3rem; align-items: center; padding: 4.5rem 1.5rem 5rem; }
+  @media (min-width: 58rem) { .hero { grid-template-columns: 1.2fr .8fr; } }
+  .hero h1 { font-size: clamp(2.7rem, 7vw, 5.2rem); font-weight: 800; margin-bottom: 1.4rem; }
+  .hero p { color: var(--soft); font-size: 1.2rem; max-width: 33rem; margin-bottom: 2rem; }
   .btns { display: flex; gap: .8rem; flex-wrap: wrap; }
-  .btn {
-    display: inline-block; padding: .8rem 1.3rem; border-radius: 10px; font-weight: 600; font-size: .95rem;
-    text-decoration: none; transition: transform .25s var(--ease), background .25s, border-color .25s, box-shadow .25s;
-  }
-  .btn.primary { background: var(--amber); color: #1a1205; }
-  .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -8px rgba(244,166,42,.55); }
-  .btn.ghost { border: 1px solid var(--line); color: var(--ink); }
-  .btn.ghost:hover { border-color: var(--amber); transform: translateY(-2px); }
-
-  /* Entrance sequence */
-  .rise { opacity: 0; transform: translateY(18px); animation: rise .8s var(--ease) forwards; }
-  .d1 { animation-delay: .05s; } .d2 { animation-delay: .18s; } .d3 { animation-delay: .3s; } .d4 { animation-delay: .45s; }
+  .btn { display: inline-block; padding: .9rem 1.5rem; border-radius: 99px; font-weight: 700; font-size: .98rem; text-decoration: none; transition: transform .25s var(--ease), background .25s, color .25s; }
+  .btn.solid { background: var(--blue); color: #fff; }
+  .btn.solid:hover { transform: translateY(-2px); background: var(--ink); }
+  .btn.line { box-shadow: inset 0 0 0 2px var(--ink); color: var(--ink); }
+  .btn.line:hover { background: var(--ink); color: #fff; }
+  .rise { opacity: 0; transform: translateY(16px); animation: rise .8s var(--ease) forwards; }
+  .d2 { animation-delay: .15s; } .d3 { animation-delay: .3s; }
   @keyframes rise { to { opacity: 1; transform: none; } }
 
-  /* Odometer card (the one memorable element) */
-  .gauge {
-    background: linear-gradient(160deg, var(--panel-2), var(--panel));
-    border: 1px solid var(--line); border-radius: 18px; padding: 1.6rem;
-    box-shadow: 0 30px 60px -30px rgba(0,0,0,.8);
-    position: relative; overflow: hidden;
-  }
-  .gauge::before {
-    content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--amber), transparent);
-    animation: scan 3.5s ease-in-out infinite;
-  }
-  @keyframes scan { 0%,100% { opacity: .2; } 50% { opacity: 1; } }
-  .gauge small { color: var(--muted); font-size: .85rem; font-weight: 500; }
-  .odo { display: flex; align-items: baseline; gap: .5rem; margin: .5rem 0 1.2rem; }
-  .odo b { font-size: clamp(2.8rem, 8vw, 3.8rem); font-weight: 800; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-  .odo span { color: var(--muted); font-weight: 500; }
-  .bar { height: 10px; background: #0b0c0d; border: 1px solid var(--line); border-radius: 99px; overflow: hidden; }
-  .bar div { height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, #c47a0c, var(--amber)); transition: width 2.2s var(--ease); }
-  .rows { margin-top: 1.4rem; display: grid; gap: .6rem; font-size: .9rem; }
-  .rows div { display: flex; justify-content: space-between; color: var(--muted); border-top: 1px solid var(--line); padding-top: .6rem; }
-  .rows b { color: var(--ink); font-weight: 600; }
-  .gauge .note { margin: 1rem 0 0; font-size: .75rem; color: #6b7178; }
+  /* The memorable element: one phone, two modes */
+  .stage { display: grid; justify-items: center; gap: 1.2rem; }
+  .phone { position: relative; width: min(15.5rem, 70vw); aspect-ratio: 9/18.5; background: var(--ink); border-radius: 2.4rem; padding: .55rem; box-shadow: 0 40px 70px -35px rgba(58,43,255,.6), 14px 14px 0 #d6d1ff; transform: perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)); transition: transform .25s ease-out; animation: float 6s ease-in-out infinite; }
+  @keyframes float { 50% { translate: 0 -10px; } }
+  .phone::before { content: ""; position: absolute; top: .95rem; left: 50%; width: 3.4rem; height: .9rem; margin-left: -1.7rem; background: var(--ink); border-radius: 99px; z-index: 3; }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: 1.9rem; overflow: hidden; background: #fff; }
+  .pane { position: absolute; inset: 0; opacity: 0; transform: scale(.96); transition: opacity .45s var(--ease), transform .45s var(--ease); pointer-events: none; }
+  .phone[data-mode="app"] .pane.app, .phone[data-mode="game"] .pane.game { opacity: 1; transform: none; }
+
+  .pane.game { background: linear-gradient(#ffb199 0 38%, #ff5a3c 38.2%, #ff5a3c 40%, #2b2150 40%); }
+  .sun { position: absolute; left: 50%; top: 14%; width: 4.2rem; height: 4.2rem; margin-left: -2.1rem; border-radius: 50%; background: #fff3c4; }
+  .road { position: absolute; left: 0; right: 0; top: 40%; bottom: 0; background: #1a1438; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); }
+  .dash { position: absolute; left: 49%; width: 2%; top: 0; bottom: 0; background: repeating-linear-gradient(to bottom, #fff 0 .9rem, transparent .9rem 2.2rem); animation: run .5s linear infinite; }
+  @keyframes run { to { background-position-y: 2.2rem; } }
+  .car { position: absolute; left: 50%; bottom: 8%; width: 3.2rem; height: 1.9rem; margin-left: -1.6rem; background: var(--coral); border-radius: .6rem .6rem .3rem .3rem; animation: sway 2.4s ease-in-out infinite; }
+  .car::before { content: ""; position: absolute; left: .45rem; right: .45rem; top: .25rem; height: .6rem; background: #1a1438; border-radius: .3rem; }
+  .car::after { content: ""; position: absolute; left: -.2rem; right: -.2rem; bottom: -.15rem; height: .5rem; background: radial-gradient(circle at .5rem .25rem, #000 .3rem, transparent .32rem) left/1.4rem 100% no-repeat, radial-gradient(circle at calc(100% - .5rem) .25rem, #000 .3rem, transparent .32rem) right/1.4rem 100% no-repeat; }
+  @keyframes sway { 50% { transform: translateX(1.1rem) rotate(3deg); } 0%,100% { transform: translateX(-1.1rem) rotate(-3deg); } }
+  .speed { position: absolute; top: 4.2rem; left: 1rem; font-family: var(--head); font-weight: 800; color: #fff; font-size: 1.3rem; }
+  .speed small { display: block; font-family: var(--body); font-weight: 500; font-size: .7rem; opacity: .8; }
+
+  .pane.app { background: var(--paper); padding: 3.2rem 1rem 1rem; }
+  .pane.app h4 { margin: 0 0 .8rem; font-family: var(--head); font-size: 1.05rem; }
+  .big { font-family: var(--head); font-weight: 800; font-size: 2.3rem; letter-spacing: -.04em; line-height: 1; }
+  .big small { font-size: .9rem; font-weight: 500; color: var(--soft); margin-left: .2rem; }
+  .meter { height: .55rem; background: var(--mist); border-radius: 99px; margin: .8rem 0 1rem; overflow: hidden; }
+  .meter i { display: block; height: 100%; width: 76%; background: var(--blue); border-radius: 99px; }
+  .row { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: .8rem; padding: .6rem .7rem; margin-bottom: .5rem; font-size: .78rem; font-weight: 500; }
+  .row b { font-size: .7rem; color: #fff; background: var(--blue); border-radius: 99px; padding: .15rem .55rem; }
+  .row b.warn { background: var(--coral); }
+  .toast { position: absolute; left: .8rem; right: .8rem; bottom: .8rem; background: var(--ink); color: #fff; border-radius: 1rem; padding: .7rem .8rem; font-size: .75rem; line-height: 1.4; transform: translateY(150%); }
+  .phone[data-mode="app"] .toast { animation: toast .7s .5s var(--ease) forwards; }
+  @keyframes toast { to { transform: none; } }
+  .toast strong { display: block; font-size: .8rem; }
+
+  .switch { display: inline-flex; background: #fff; border-radius: 99px; padding: .25rem; box-shadow: inset 0 0 0 1px var(--mist); }
+  .switch button { font: inherit; font-size: .9rem; font-weight: 700; border: 0; background: transparent; color: var(--soft); padding: .5rem 1.3rem; border-radius: 99px; cursor: pointer; transition: background .3s var(--ease), color .3s; }
+  .switch button[aria-pressed="true"] { background: var(--ink); color: #fff; }
 
   /* Sections */
-  section { padding: 4.5rem 0; border-top: 1px solid var(--line); }
-  .cols { display: grid; gap: 1.5rem 3.5rem; }
-  @media (min-width: 52rem) { .cols { grid-template-columns: 13rem 1fr; } }
-  h2 { font-size: 1.5rem; letter-spacing: -0.025em; font-weight: 700; margin: 0; line-height: 1.2; }
-  .lead { font-size: 1.6rem; line-height: 1.35; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 1rem; max-width: 36rem; }
-  .muted { color: var(--muted); max-width: 38rem; margin: 0; }
+  section { padding: 5rem 0; }
+  .sec-head { max-width: 40rem; margin-bottom: 2.6rem; }
+  .sec-head h2 { font-size: clamp(2rem, 4.5vw, 3.1rem); font-weight: 800; margin-bottom: .9rem; }
+  .sec-head p { color: var(--soft); }
 
-  .grid { display: grid; gap: 1rem; margin-top: 1.8rem; }
-  @media (min-width: 40rem) { .grid { grid-template-columns: 1fr 1fr; } }
-  .item {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.5rem;
-    transition: transform .35s var(--ease), border-color .35s, background .35s;
-  }
-  .item:hover { transform: translateY(-4px); border-color: rgba(244,166,42,.55); background: var(--panel-2); }
-  .item .ic {
-    width: 2.4rem; height: 2.4rem; border-radius: 10px; background: var(--amber-soft); color: var(--amber);
-    display: grid; place-items: center; margin-bottom: 1rem; transition: transform .4s var(--ease);
-  }
-  .item:hover .ic { transform: rotate(-8deg) scale(1.1); }
-  .ic svg { width: 1.2rem; height: 1.2rem; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .item h3 { margin: 0 0 .4rem; font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
-  .item p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .mission { background: var(--ink); color: #fff; border-radius: 2rem; padding: clamp(2rem, 6vw, 4.5rem); }
+  .mission h2 { font-size: clamp(1.9rem, 4.6vw, 3.4rem); font-weight: 700; max-width: 44rem; margin-bottom: 1.2rem; }
+  .mission p { color: #bdb8d9; max-width: 38rem; }
 
-  /* Process with growing line */
-  .steps { list-style: none; margin: 0; padding: 0 0 0 2.2rem; position: relative; }
-  .steps::before { content: ""; position: absolute; left: .55rem; top: .4rem; bottom: .4rem; width: 2px; background: var(--line); }
-  .steps .fill { position: absolute; left: .55rem; top: .4rem; width: 2px; height: 0; background: var(--amber); transition: height .2s linear; }
-  .steps li { position: relative; padding: 0 0 1.8rem; }
-  .steps li:last-child { padding-bottom: 0; }
-  .steps li::before {
-    content: ""; position: absolute; left: -2.2rem; top: .35rem; width: 14px; height: 14px; border-radius: 50%;
-    background: var(--bg); border: 2px solid var(--line); transition: border-color .4s, background .4s, box-shadow .4s;
-  }
-  .steps li.on::before { border-color: var(--amber); background: var(--amber); box-shadow: 0 0 0 5px var(--amber-soft); }
-  .steps strong { display: block; font-weight: 600; font-size: 1.05rem; letter-spacing: -0.01em; }
-  .steps span { color: var(--muted); font-size: .96rem; }
+  .list { border-top: 2px solid var(--ink); }
+  .list > div { display: grid; gap: .4rem 2rem; padding: 1.6rem 0; border-bottom: 1px solid var(--mist); transition: padding .35s var(--ease), background .35s; }
+  @media (min-width: 46rem) { .list > div { grid-template-columns: 1fr 1.2fr; align-items: start; } }
+  .list h3 { font-size: 1.6rem; font-weight: 700; }
+  .list p { color: var(--soft); }
+  .list > div:hover { padding-left: 1rem; background: linear-gradient(90deg, rgba(58,43,255,.07), transparent); }
 
-  /* App card */
-  .app {
-    border: 1px solid var(--line); border-radius: 18px; padding: 2rem;
-    background: radial-gradient(120% 140% at 100% 0%, var(--amber-soft), transparent 55%), var(--panel);
-    transition: border-color .35s, transform .35s var(--ease);
-  }
-  .app:hover { border-color: rgba(244,166,42,.55); transform: translateY(-3px); }
-  .app h3 { margin: 0 0 .5rem; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
-  .app p { color: var(--muted); max-width: 38rem; margin: 0 0 1.1rem; }
-  .tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.2rem; }
-  .tags span { border: 1px solid var(--line); border-radius: 99px; padding: .3rem .8rem; font-size: .83rem; color: var(--ink); background: var(--bg); }
-  .pkg { font-family: Consolas, "Courier New", monospace; font-size: .82rem; color: #6b7178; margin: 0; }
+  .steps { display: grid; gap: 1.2rem; counter-reset: s; }
+  @media (min-width: 46rem) { .steps { grid-template-columns: repeat(4, 1fr); } }
+  .steps li { list-style: none; position: relative; padding-top: 1.1rem; --c: var(--blue); }
+  .steps li::before, .steps li::after { content: ""; position: absolute; left: 0; top: 0; height: 4px; width: 100%; border-radius: 4px; }
+  .steps li::before { background: var(--mist); }
+  .steps li::after { background: var(--c); transform: scaleX(0); transform-origin: left; transition: transform .9s var(--ease); transition-delay: calc(var(--d, 0s) + .25s); }
+  .steps li.in::after { transform: scaleX(1); }
+  .steps li:nth-child(2) { --c: var(--coral); }
+  .steps li:nth-child(3) { --c: var(--ink); }
+  .steps li:nth-child(4) { --c: #8f89c9; }
+  .steps strong { font-family: var(--head); font-size: 1.25rem; display: block; margin-bottom: .4rem; letter-spacing: -.02em; }
+  .steps span { color: var(--soft); font-size: .98rem; }
+  .steps { padding: 0; margin: 0; }
 
-  footer { border-top: 1px solid var(--line); padding: 2rem 0 3rem; color: var(--muted); font-size: .88rem; }
+  .work { display: grid; gap: 1.2rem; }
+  @media (min-width: 52rem) { .work { grid-template-columns: 1fr 1fr; } }
+  .panel { position: relative; overflow: hidden; border-radius: 1.8rem; padding: 2.2rem; min-height: 19rem; display: flex; flex-direction: column; justify-content: flex-end; transition: transform .35s var(--ease); }
+  .panel:hover { transform: translateY(-5px) rotate(-.4deg); }
+  .panel.a { background: linear-gradient(160deg, #ebe9ff, #d5d0ff); color: var(--ink); }
+  .panel.g { background: linear-gradient(160deg, #ffeee8, #ffd5c8); color: var(--ink); }
+  .panel h3 { font-size: 2rem; font-weight: 800; margin-bottom: .6rem; }
+  .panel p { max-width: 24rem; margin-bottom: 1.2rem; opacity: .9; }
+  .tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .tags span { border-radius: 99px; padding: .25rem .8rem; font-size: .85rem; font-weight: 500; box-shadow: inset 0 0 0 1.5px currentColor; }
+  .pkg { font-family: Consolas, "Courier New", monospace; font-size: .8rem; margin-top: 1rem; opacity: .75; }
+
+  .contact { text-align: left; }
+  .contact .wrap { display: grid; gap: 2rem; align-items: center; }
+  @media (min-width: 52rem) { .contact .wrap { grid-template-columns: 1.3fr .7fr; } }
+  .mailart { width: 100%; max-width: 17rem; justify-self: center; filter: drop-shadow(0 18px 14px rgba(20,17,43,.2)); }
+  .contact h2 { font-size: clamp(2.2rem, 6vw, 4.4rem); font-weight: 800; max-width: 40rem; margin-bottom: 1.6rem; }
+  .contact a.mail { display: inline-block; font-family: var(--head); font-weight: 700; font-size: clamp(1.1rem, 3vw, 1.7rem); color: var(--blue); text-decoration: none; background: linear-gradient(var(--coral), var(--coral)) 0 100%/100% 3px no-repeat; padding-bottom: .2rem; transition: background-size .3s var(--ease), color .3s; }
+  .contact a.mail:hover { background-size: 100% 100%; color: #fff; }
+
+  footer { border-top: 1px solid var(--mist); padding: 2rem 0 3rem; color: var(--soft); font-size: .9rem; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
 
-  /* Scroll reveal */
-  .reveal { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
-  .reveal.in { opacity: 1; transform: none; }
+  /* Motion */
+  .orbs { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .orbs i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; animation: orb 18s ease-in-out infinite alternate; }
+  .orbs i:nth-child(1) { width: 30rem; height: 30rem; left: -8rem; top: -6rem; background: #cfc9ff; }
+  .orbs i:nth-child(2) { width: 26rem; height: 26rem; right: -6rem; top: 24rem; background: #ffd9cf; animation-delay: -6s; }
+  @keyframes orb { to { transform: translate(5rem, 4rem) scale(1.12); } }
 
-  :focus-visible { outline: 3px solid var(--amber); outline-offset: 3px; border-radius: 6px; }
+  .marquee { overflow: hidden; border-block: 1px solid var(--mist); background: rgba(255,255,255,.55); padding: 1rem 0; }
+  .marquee > div { display: flex; width: max-content; animation: slide 28s linear infinite; }
+  .marquee:hover > div { animation-play-state: paused; }
+  .marquee span { display: flex; align-items: center; gap: 3rem; padding-right: 3rem; white-space: nowrap; font-family: var(--head); font-weight: 700; font-size: 1.5rem; letter-spacing: -.02em; }
+  .marquee span::after { content: ""; width: .6rem; height: .6rem; background: var(--blue); transform: rotate(45deg); }
+  .marquee span:nth-child(even)::after { background: var(--coral); }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  .marquee + .wrap { margin-top: 4rem; }
 
+  .reveal:not(.in) { opacity: 0; }
+  .reveal.in { animation: up .85s var(--ease) backwards; animation-delay: var(--d, 0s); }
+  @keyframes up { from { opacity: 0; transform: translateY(28px); } }
+
+  .w { display: inline-block; opacity: 0; transform: translateY(.6em); animation: word .75s var(--ease) forwards; animation-delay: calc(var(--i) * 70ms + .1s); }
+  @keyframes word { to { opacity: 1; transform: none; } }
+
+  .deco { position: absolute; top: 1.8rem; right: 1.8rem; width: 5rem; height: 5rem; }
+  .ring i { position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--blue); opacity: 0; animation: ping 2.8s ease-out infinite; }
+  .ring i:nth-child(2) { animation-delay: 1.2s; }
+  .ring::after { content: ""; position: absolute; inset: 1.7rem; border-radius: 50%; background: var(--blue); }
+  @keyframes ping { from { transform: scale(.35); opacity: .8; } to { transform: scale(1.6); opacity: 0; } }
+  .lines { width: 8rem; right: 1rem; overflow: hidden; }
+  .lines i { position: absolute; right: 0; height: 4px; border-radius: 4px; background: var(--coral); animation: zip 1.4s linear infinite; }
+  .lines i:nth-child(1) { top: 1rem; width: 3.5rem; }
+  .lines i:nth-child(2) { top: 2.4rem; width: 5.5rem; animation-delay: -.5s; }
+  .lines i:nth-child(3) { top: 3.8rem; width: 2.5rem; animation-delay: -.9s; }
+  @keyframes zip { from { transform: translateX(130%); } to { transform: translateX(-150%); } }
+
+  /* Illustrations */
+  .mission { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 52rem) { .mission { grid-template-columns: 1.4fr .8fr; } }
+  .forge { width: 100%; max-width: 19rem; justify-self: center; overflow: visible; }
+  .hammer { transform-origin: 200px 24px; animation: hit 1.6s ease-in-out infinite; }
+  @keyframes hit { 0%, 100% { transform: rotate(-38deg); } 42%, 52% { transform: rotate(18deg); } }
+  .hot { animation: hot 1.6s ease-in-out infinite; }
+  @keyframes hot { 0%, 40% { opacity: .65; } 46% { opacity: 1; } 100% { opacity: .65; } }
+  .glow { opacity: 0; animation: glow 1.6s ease-out infinite; }
+  @keyframes glow { 0%, 44% { opacity: 0; transform: scale(.4); } 47% { opacity: .55; } 80%, 100% { opacity: 0; transform: scale(1.5); } }
+  .glow, .sp { transform-box: fill-box; transform-origin: center; }
+  .sp { opacity: 0; animation: spark 1.6s ease-out infinite; }
+  @keyframes spark { 0%, 44% { opacity: 0; transform: translate(0, 0); } 47% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)); } }
+
+  .art { display: block; height: 10rem; width: auto; max-width: 100%; margin: 0 auto 1.6rem; transform: translateZ(60px); filter: drop-shadow(0 18px 14px rgba(20,17,43,.28)); }
+  .art.carart { height: auto; width: min(100%, 18.5rem); }
+  .gauge .prog { stroke-dasharray: 100; stroke-dashoffset: 24; animation: fillg 4s ease-in-out infinite alternate; }
+  @keyframes fillg { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 24; } }
+  .gauge .needle { transform-origin: 100px 88px; transform: rotate(46deg); animation: needle 4s ease-in-out infinite alternate; }
+  @keyframes needle { from { transform: rotate(-84deg); } to { transform: rotate(46deg); } }
+  .carart .body { animation: bounce .5s ease-in-out infinite alternate; }
+  @keyframes bounce { to { transform: translateY(-1.6px); } }
+  .carart .wheel { animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .carart .road { stroke-dasharray: 14 12; animation: dashm .5s linear infinite; }
+  @keyframes dashm { to { stroke-dashoffset: -26; } }
+  .carart .sl { animation: zip2 .9s linear infinite; opacity: 0; }
+  .carart .sl:nth-of-type(2) { animation-delay: -.3s; }
+  .carart .sl:nth-of-type(3) { animation-delay: -.6s; }
+  @keyframes zip2 { from { transform: translateX(34px); opacity: 0; } 30% { opacity: 1; } to { transform: translateX(-30px); opacity: 0; } }
+
+  /* 3D cards */
+  .panel { overflow: visible; transform-style: preserve-3d; min-height: 0; justify-content: flex-start; transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .2s ease-out, box-shadow .3s; box-shadow: 0 30px 50px -32px rgba(20,17,43,.4), inset 0 1px 0 rgba(255,255,255,.7); }
+  .panel:hover { transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px); box-shadow: 0 44px 60px -32px rgba(20,17,43,.5), inset 0 1px 0 rgba(255,255,255,.7); }
+  .panel h3, .panel p, .panel .tags { transform: translateZ(20px); }
+
+  /* Extra detail */
+  .trust { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; list-style: none; padding: 0; margin: 1.8rem 0 0; font-size: .92rem; font-weight: 500; color: var(--soft); }
+  .trust li { display: flex; align-items: center; gap: .5rem; }
+  .trust svg { width: 1.1rem; height: 1.1rem; stroke: var(--blue); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .chip { position: absolute; z-index: 4; opacity: 0; scale: .8; pointer-events: none; transition: opacity .4s var(--ease), scale .4s var(--ease); display: flex; align-items: center; gap: .5rem; white-space: nowrap; background: #fff; border-radius: 99px; padding: .45rem .9rem .45rem .7rem; font-size: .78rem; font-weight: 700; box-shadow: 0 12px 24px -10px rgba(20,17,43,.35); animation: bob 4s ease-in-out infinite; }
+  .chip i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--blue); }
+  .chip.c1 { right: -3.2rem; top: 72%; }
+  .chip.c2 { left: -3.4rem; bottom: 24%; }
+  .phone[data-mode="app"] .chip.c1, .phone[data-mode="game"] .chip.c2 { opacity: 1; scale: 1; transition-delay: .5s; }
+  .chip.c2 i { background: var(--coral); }
+  @keyframes bob { 50% { translate: 0 -8px; } }
+  @media (max-width: 30rem) { .chip.c1 { right: -1.4rem; } .chip.c2 { left: -1.4rem; } }
+
+  .tg { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .8rem; }
+  .tg b { font-weight: 500; font-size: .8rem; color: var(--blue); background: rgba(58,43,255,.08); padding: .15rem .65rem; border-radius: 99px; }
+
+  .panel::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: radial-gradient(circle at 50% 24%, rgba(255,255,255,.8), transparent 46%), radial-gradient(rgba(20,17,43,.09) 1px, transparent 1.6px) 0 0 / 14px 14px; pointer-events: none; }
+
+  .gauge .bell { transform-origin: 164px 20px; animation: ring 2.6s ease-in-out infinite; }
+  @keyframes ring { 0%, 58%, 100% { transform: rotate(0); } 64% { transform: rotate(-16deg); } 70% { transform: rotate(14deg); } 76% { transform: rotate(-10deg); } 82% { transform: rotate(6deg); } 90% { transform: rotate(0); } }
+  .carart .hills1 { animation: pan 9s linear infinite; }
+  .carart .hills2 { animation: pan 18s linear infinite; }
+  @keyframes pan { to { transform: translateX(-240px); } }
+  .carart .dust circle { opacity: 0; transform-box: fill-box; transform-origin: center; animation: dust 1s ease-out infinite; }
+  .carart .dust circle:nth-child(2) { animation-delay: -.33s; }
+  .carart .dust circle:nth-child(3) { animation-delay: -.66s; }
+  .carart .dust.ex circle { animation-duration: 1.4s; }
+  @keyframes dust { from { opacity: .75; transform: translate(0, 0) scale(.4); } to { opacity: 0; transform: translate(-34px, -10px) scale(1.7); } }
+  .carart .beam { animation: beam 1.2s ease-in-out infinite alternate; }
+  @keyframes beam { from { opacity: .45; } to { opacity: .9; } }
+
+  .gear { animation: turn 22s linear infinite; }
+  .gear.rev { animation-duration: 15s; animation-direction: reverse; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  .ember { opacity: 0; animation: rise2 3.2s ease-out infinite; }
+  @keyframes rise2 { 0% { opacity: 0; transform: translate(0, 0); } 15% { opacity: .9; } 100% { opacity: 0; transform: translate(var(--x), -70px); } }
+
+  .fgrid { display: grid; gap: 2rem; grid-template-columns: 1fr; padding-bottom: 2rem; }
+  @media (min-width: 46rem) { .fgrid { grid-template-columns: 1.5fr 1fr 1fr; } }
+  footer .wrap.fgrid { display: grid; }
+  .fcol h4 { margin: 0 0 .8rem; font-family: var(--head); font-size: 1rem; color: var(--ink); }
+  .fcol a { display: block; color: var(--soft); text-decoration: none; margin-bottom: .4rem; transition: color .2s; }
+  .fcol a:hover { color: var(--blue); }
+  .fcol .brand { display: flex; color: var(--ink); margin-bottom: .8rem; }
+  .fcol p { max-width: 20rem; }
+  .fbar { border-top: 1px solid var(--mist); padding-top: 1.4rem; }
+
+  /* Round 5 */
+  .ri { width: 2.7rem; height: 2.7rem; padding: .65rem; border-radius: .85rem; background: var(--blue); stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; box-shadow: 0 10px 18px -8px rgba(58,43,255,.6), inset 0 1px 0 rgba(255,255,255,.35); flex: none; transition: transform .4s var(--ease); }
+  .list h3 { display: flex; align-items: center; gap: .9rem; min-height: 2.7rem; }
+  .list > div:hover .ri { transform: rotate(-8deg) scale(1.1); }
+  .menv { animation: envf 4s ease-in-out infinite; }
+  @keyframes envf { 50% { transform: translateY(-8px); } }
+  .mpaper { animation: paper 4s ease-in-out infinite; }
+  @keyframes paper { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+  .mbadge { transform-box: fill-box; transform-origin: center; animation: badge 2s ease-in-out infinite; }
+  @keyframes badge { 50% { transform: scale(1.18); } }
+  .msh { transform-box: fill-box; transform-origin: center; animation: shd 4s ease-in-out infinite; }
+  @keyframes shd { 50% { transform: scale(.85); opacity: .15; } }
+  .btn.solid { position: relative; overflow: hidden; }
+  .btn.solid::after { content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg); animation: shine 4s ease-in-out infinite; }
+  @keyframes shine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+
+  /* Round 6 */
+  .pill { display: inline-flex; align-items: center; gap: .6rem; background: #fff; border-radius: 99px; padding: .4rem 1rem .4rem .8rem; font-size: .88rem; font-weight: 700; box-shadow: inset 0 0 0 1px var(--mist); margin-bottom: 1.4rem; }
+  .pill i { width: .6rem; height: .6rem; border-radius: 50%; background: #22b573; animation: avail 2s infinite; }
+  @keyframes avail { 0% { box-shadow: 0 0 0 0 rgba(34,181,115,.55); } 70%, 100% { box-shadow: 0 0 0 .6rem rgba(34,181,115,0); } }
+  .fcol .pill { margin: 1rem 0 0; }
+
+  .exp { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 58rem) { .exp { grid-template-columns: 1.15fr .85fr; } }
+  .log { border-top: 2px solid var(--ink); }
+  .entry { display: grid; grid-template-columns: 5rem 1fr; gap: 1.3rem; padding: 1.5rem 0; border-bottom: 1px solid var(--mist); }
+  .entry h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: .4rem; }
+  .entry p { color: var(--soft); }
+  .thumb { width: 5rem; height: 5rem; border-radius: 1.3rem; display: grid; place-items: center; box-shadow: 0 14px 22px -12px rgba(20,17,43,.5), inset 0 1px 0 rgba(255,255,255,.35); transition: transform .4s var(--ease); }
+  .thumb svg { width: 3.4rem; height: 3.4rem; }
+  .entry:hover .thumb { transform: rotate(-6deg) scale(1.06); }
+  .t1 { background: linear-gradient(150deg, #7a6fff, #4b3fd6); }
+  .t2 { background: linear-gradient(150deg, #5a4aa8, #2b2150); }
+  .t3 { background: linear-gradient(150deg, #f1efff, #cfc9ff); }
+  .mneedle { transform-origin: 24px 34px; animation: mneedle 3s ease-in-out infinite alternate; }
+  @keyframes mneedle { from { transform: rotate(-60deg); } to { transform: rotate(48deg); } }
+  .mprog { animation: mprog 3s ease-in-out infinite alternate; }
+  @keyframes mprog { from { stroke-dasharray: 2 60; } to { stroke-dasharray: 34 60; } }
+  .mroad { animation: dashm .5s linear infinite; }
+  .msteer { transform-origin: 24px 24px; animation: steer 3s ease-in-out infinite; }
+  @keyframes steer { 0%, 100% { transform: rotate(-35deg); } 50% { transform: rotate(35deg); } }
+
+  .orbit { position: relative; width: 20rem; max-width: 100%; aspect-ratio: 1; justify-self: center; }
+  .orbit::before, .orbit::after { content: ""; position: absolute; border-radius: 50%; border: 2px dashed var(--mist); }
+  .orbit::before { inset: 1.2rem; }
+  .orbit::after { inset: 5rem; opacity: .7; }
+  .core { position: absolute; left: 50%; top: 50%; width: 6.4rem; height: 6.4rem; margin: -3.2rem 0 0 -3.2rem; filter: drop-shadow(0 22px 16px rgba(58,43,255,.4)); animation: float 6s ease-in-out infinite; }
+  .core svg { width: 100%; height: 100%; }
+  .oring { position: absolute; inset: 0; animation: turn 36s linear infinite; }
+  .oring span { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(var(--a)) translateX(8.6rem) rotate(calc(var(--a) * -1)); }
+  .oring b { display: block; background: #fff; border-radius: 99px; padding: .4rem .95rem; font-size: .85rem; font-weight: 700; box-shadow: 0 12px 20px -10px rgba(20,17,43,.4), inset 0 0 0 1px var(--mist); animation: turn 36s linear infinite reverse; }
+  .oring span:nth-child(odd) b { color: var(--blue); }
+
+  .openbox { display: grid; gap: 2rem; align-items: center; background: linear-gradient(150deg, #fff, #ebe9ff); border-radius: 2rem; padding: clamp(1.6rem, 5vw, 3.5rem); box-shadow: 0 40px 60px -40px rgba(58,43,255,.35), inset 0 0 0 1px var(--mist); }
+  @media (min-width: 52rem) { .openbox { grid-template-columns: 1.2fr .8fr; } }
+  .openbox h2 { font-size: clamp(2rem, 4.6vw, 3.3rem); font-weight: 800; margin: 0 0 1rem; }
+  .openbox p { color: var(--soft); max-width: 34rem; margin-bottom: 1.6rem; }
+  .peak { width: 100%; max-width: 20rem; justify-self: center; filter: drop-shadow(0 18px 14px rgba(20,17,43,.22)); }
+  .flag { transform-box: fill-box; transform-origin: left center; animation: wave 1.4s ease-in-out infinite; }
+  @keyframes wave { 50% { transform: scaleX(.8) skewY(6deg); } }
+  .trail { stroke-dasharray: 3 6; animation: trail 1.2s linear infinite; }
+  @keyframes trail { to { stroke-dashoffset: -9; } }
+  .cloud { animation: cl 14s ease-in-out infinite alternate; }
+  @keyframes cl { to { transform: translateX(40px); } }
+  .marq2 { overflow: hidden; margin-top: 1.6rem; }
+  .marq2 > div { display: flex; width: max-content; animation: slide 32s linear infinite reverse; }
+  .marq2 span { flex: none; margin-right: .9rem; border: 2px solid var(--ink); border-radius: 99px; padding: .45rem 1.3rem; font-family: var(--head); font-weight: 700; white-space: nowrap; }
+  .marq2 span:nth-child(3n+2) { background: var(--ink); color: #fff; }
+
+  .faq { border-top: 2px solid var(--ink); max-width: 48rem; }
+  .faq details { border-bottom: 1px solid var(--mist); padding: 1.2rem 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; font-family: var(--head); font-weight: 700; font-size: 1.25rem; letter-spacing: -.02em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; flex: none; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: linear-gradient(var(--ink), var(--ink)) center / .8rem 2px no-repeat, linear-gradient(var(--ink), var(--ink)) center / 2px .8rem no-repeat, var(--mist); transition: transform .35s var(--ease), background-color .3s; }
+  .faq summary:hover::after { background-color: #cfc9ff; }
+  .faq details[open] summary::after { transform: rotate(45deg); background-color: #ffd0c5; }
+  .faq details p { color: var(--soft); margin-top: .8rem; max-width: 40rem; animation: up .45s var(--ease); }
+  .cnote { color: var(--soft); max-width: 32rem; margin: 0 0 1.4rem; }
+
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; border-radius: 8px; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation: none !important; transition: none !important; }
-    .rise, .reveal { opacity: 1; transform: none; }
+    .rise { opacity: 1; transform: none; }
+    .toast { transform: none; }
+    .w { opacity: 1; transform: none; }
+    .steps li::after { transform: scaleX(1); }
+    .phone { transform: none; }
   }
 </style>
 </head>
 <body>
-<div class="bg" aria-hidden="true"></div>
+<div class="orbs" aria-hidden="true"><i></i><i></i></div>
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="#top"><i></i>RM Forge Labs</a>
+    <a class="brand" href="#top" aria-label="RM Forge Labs home">
+      <svg viewBox="0 0 40 40" aria-hidden="true">
+        <rect width="40" height="40" rx="11" fill="#3a2bff"/>
+        <path d="M9 30V14l11 11 11-11v16" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle class="spark" cx="20" cy="9" r="3" fill="#ff5a3c"/>
+      </svg>
+      RM Forge Labs
+    </a>
     <nav aria-label="Main">
-      <a href="#mission">Mission</a>
       <a href="#what">What we do</a>
-      <a href="#how">How we do it</a>
-      <a href="#apps">Apps</a>
+      <a href="#experience">Experience</a>
+      <a href="#how">How we work</a>
+      <a href="#work">Our work</a>
+      <a class="cta" href="#contact">Contact</a>
     </nav>
   </div>
 </header>
@@ -214,61 +384,142 @@
 <main id="top">
   <div class="wrap hero">
     <div>
-      <h1 class="rise d1">Practical apps for people who <em>maintain their own vehicles.</em></h1>
-      <p class="rise d2">RM Forge Labs is an independent Android app studio. We build focused tools that remove guesswork from vehicle upkeep, so nothing gets missed and nothing gets over-serviced.</p>
+      <div class="pill rise"><i></i>Open to new projects</div>
+      <h1 id="headline">We make phone apps and games people come back to.</h1>
+      <p class="rise d2">RM Forge Labs is an independent studio building practical Android apps and fun mobile games. Small, fast, and easy to use.</p>
       <div class="btns rise d3">
-        <a class="btn primary" href="#apps">See our app</a>
-        <a class="btn ghost" href="#how">How we work</a>
+        <a class="btn solid" href="#work">See our work</a>
+        <a class="btn line" href="#contact">Start a project</a>
       </div>
+      <ul class="trust rise d3">
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Built for Android</li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Flutter and Unity</li>
+        <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Play Store ready</li>
+      </ul>
     </div>
 
-    <div class="gauge rise d4" aria-label="Illustration of an oil change reminder">
-      <small>Next oil change in</small>
-      <div class="odo"><b id="odo">0</b><span>km</span></div>
-      <div class="bar" role="presentation"><div id="fill"></div></div>
-      <div class="rows">
-        <div>Last service <b>Engine oil + filter</b></div>
-        <div>Reminder <b>Scheduled</b></div>
+    <div class="stage rise d3">
+      <div class="phone" id="phone" data-mode="game">
+        <div class="chip c1" aria-hidden="true"><i></i>Service logged</div>
+        <div class="chip c2" aria-hidden="true"><i></i>New best lap</div>
+        <div class="screen">
+          <div class="pane game" aria-hidden="true">
+            <div class="sun"></div>
+            <div class="speed">128<small>km/h</small></div>
+            <div class="road"><div class="dash"></div></div>
+            <div class="car"></div>
+          </div>
+          <div class="pane app" aria-hidden="true">
+            <h4>My garage</h4>
+            <div class="big">1,240<small>km left</small></div>
+            <div class="meter"><i></i></div>
+            <div class="row">Engine oil and filter <b>Done</b></div>
+            <div class="row">Tuning job <b>Planned</b></div>
+            <div class="row">Next oil change <b class="warn">Soon</b></div>
+            <div class="toast"><strong>Oil change due soon</strong>Your reminder is set.</div>
+          </div>
+        </div>
       </div>
-      <p class="note">Illustration of the kind of reminder MoToil provides.</p>
+      <div class="switch" role="group" aria-label="Preview type">
+        <button type="button" data-mode="game" aria-pressed="true">Game</button>
+        <button type="button" data-mode="app" aria-pressed="false">App</button>
+      </div>
     </div>
   </div>
 
-  <section id="mission">
-    <div class="wrap cols reveal">
-      <h2>Our mission</h2>
+  <div class="marquee" aria-hidden="true"><div><span>Flutter</span><span>Unity</span><span>Firebase</span><span>Android</span><span>Google Play</span><span>Hive</span><span>Flutter</span><span>Unity</span><span>Firebase</span><span>Android</span><span>Google Play</span><span>Hive</span></div></div>
+
+  <div class="wrap">
+    <div class="mission" id="mission">
       <div>
-        <p class="lead">Make routine vehicle maintenance simple, organized, and hard to forget.</p>
-        <p class="muted">Most maintenance mistakes come from missed dates and lost records, not from a lack of skill. We build apps that keep the history in one place and tell you when the next job is due, for everyday riders, drivers, and home mechanics.</p>
+      <h2>Mobile software that is simple, reliable, and a pleasure to use.</h2>
+      <p>Whether it is a tool that saves you time or a game that makes the commute shorter, we aim for one thing: a clear idea, done well, with no clutter between you and what you came to do.</p>
+      </div>
+      <svg class="forge" viewBox="0 0 230 165" role="img" aria-label="Animated hammer striking a glowing bar on an anvil">
+        <defs>
+          <linearGradient id="fA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9d4ff"/><stop offset="1" stop-color="#6f69a8"/></linearGradient>
+          <linearGradient id="fT" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f4f2ff"/><stop offset="1" stop-color="#b9b3ee"/></linearGradient>
+          <linearGradient id="fB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d77bd"/><stop offset="1" stop-color="#443e85"/></linearGradient>
+          <linearGradient id="fH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#a9a3dd"/></linearGradient>
+          <linearGradient id="fW" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0d4a8"/><stop offset="1" stop-color="#b98f58"/></linearGradient>
+          <radialGradient id="fG"><stop offset="0" stop-color="#ffd9a0"/><stop offset="1" stop-color="#ff5a3c" stop-opacity="0"/></radialGradient>
+        </defs>
+        <g class="gear" opacity=".4" style="transform-origin:38px 42px"><circle cx="38" cy="42" r="22" fill="none" stroke="#8f89c9" stroke-width="7" stroke-dasharray="5.76 5.76"/><circle cx="38" cy="42" r="19" fill="#3a3380"/><circle cx="38" cy="42" r="12" fill="none" stroke="#8f89c9" stroke-width="2"/><circle cx="38" cy="42" r="4" fill="#14112b"/></g>
+        <g class="gear rev" opacity=".4" style="transform-origin:78px 20px"><circle cx="78" cy="20" r="14" fill="none" stroke="#8f89c9" stroke-width="6" stroke-dasharray="4.71 4.71"/><circle cx="78" cy="20" r="11.5" fill="#3a3380"/><circle cx="78" cy="20" r="3.5" fill="#14112b"/></g>
+        <ellipse cx="118" cy="160" rx="88" ry="6" fill="#000" opacity=".3"/>
+        <path d="M80 144h80l6 14H74z" fill="url(#fB)"/>
+        <path d="M36 102h150c0 14-10 22-26 22h-14l8 20H88l8-20H60c-14 0-22-8-24-22z" fill="url(#fA)"/>
+        <text x="110" y="117" fill="#4b4496" fill-opacity=".75" font-size="12" font-weight="800" text-anchor="middle" style="font-family:var(--head)">RM</text>
+        <path d="M36 102L8 108Q6 114 36 118z" fill="url(#fB)"/>
+        <path d="M52 90L36 102L8 108L22 94z" fill="url(#fT)"/>
+        <path d="M36 102H186L202 90H52z" fill="url(#fT)"/>
+        <ellipse cx="86" cy="96" rx="7" ry="2" fill="#8d87c9"/>
+        <rect x="36" y="100" width="150" height="3" fill="#fff" opacity=".5"/>
+        <path class="hot" d="M136 97L184 97L196 90H148z" fill="#ff5a3c"/>
+        <circle class="glow" cx="174" cy="92" r="18" fill="url(#fG)"/>
+        <circle class="ember" cx="158" cy="92" r="1.6" fill="#ffd9a0" style="--x:-8px"/>
+        <circle class="ember" cx="170" cy="92" r="1.4" fill="#ff8a73" style="--x:10px;animation-delay:-1s"/>
+        <circle class="ember" cx="182" cy="92" r="1.8" fill="#ffd9a0" style="--x:6px;animation-delay:-2s"/>
+        <circle class="ember" cx="146" cy="92" r="1.4" fill="#ff8a73" style="--x:-14px;animation-delay:-.5s"/>
+        <g class="hammer">
+          <rect x="196" y="24" width="8" height="76" rx="3" fill="url(#fW)"/>
+          <rect x="196" y="58" width="8" height="3" fill="#8a6a3a" opacity=".5"/>
+          <rect x="196" y="68" width="8" height="3" fill="#8a6a3a" opacity=".5"/>
+          <rect x="178" y="90" width="44" height="20" rx="4" fill="url(#fH)"/>
+          <rect x="180" y="92" width="40" height="3" rx="1.5" fill="#fff" opacity=".7"/>
+          <circle cx="184" cy="102" r="1.6" fill="#8f89c9"/><circle cx="216" cy="102" r="1.6" fill="#8f89c9"/>
+        </g>
+        <circle class="sp" cx="174" cy="92" r="2.4" fill="#ffd9a0" style="--x:-30px;--y:-42px"/>
+        <circle class="sp" cx="174" cy="92" r="2" fill="#ff8a73" style="--x:-8px;--y:-58px;animation-delay:.03s"/>
+        <circle class="sp" cx="174" cy="92" r="2.4" fill="#ffd9a0" style="--x:16px;--y:-48px"/>
+        <circle class="sp" cx="174" cy="92" r="2" fill="#ff8a73" style="--x:38px;--y:-30px;animation-delay:.03s"/>
+        <circle class="sp" cx="174" cy="92" r="2" fill="#ffd9a0" style="--x:-46px;--y:-16px"/>
+        <circle class="sp" cx="174" cy="92" r="2.2" fill="#ff8a73" style="--x:52px;--y:-10px"/>
+      </svg>
+    </div>
+  </div>
+
+  <section id="what">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>What we do</h2>
+        <p>We design, build, and publish mobile apps and games for Android, from first prototype to Google Play release and updates.</p>
+      </div>
+      <div class="list">
+        <div><h3><svg class="ri" viewBox="0 0 24 24" style="" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Utility apps</h3><p>Focused tools that solve one everyday problem well, with reminders, simple records, and offline support.<span class="tg"><b>Flutter</b><b>Firebase</b><b>Offline-ready</b></span></p></div>
+        <div><h3><svg class="ri" viewBox="0 0 24 24" style="background:var(--coral);" aria-hidden="true"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 10v5M4.5 12.5h5M16 11h.01M18.5 14h.01"/></svg>Mobile games</h3><p>Driving, racing, and casual games with responsive touch controls and smooth performance on everyday phones.<span class="tg"><b>Unity</b><b>Touch controls</b><b>Physics</b></span></p></div>
+        <div><h3><svg class="ri" viewBox="0 0 24 24" style="background:var(--ink);" aria-hidden="true"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Custom development</h3><p>Need an app or game built? We take on selected projects, from idea to a store-ready build.<span class="tg"><b>Prototype</b><b>Play Store release</b></span></p></div>
+        <div><h3><svg class="ri" viewBox="0 0 24 24" style="background:#8f89c9;" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Updates and support</h3><p>Bug fixes, new features, and compatibility updates after launch, so your product stays healthy.<span class="tg"><b>Bug fixes</b><b>New features</b><b>Compatibility</b></span></p></div>
       </div>
     </div>
   </section>
 
-  <section id="what">
-    <div class="wrap cols reveal">
-      <h2>What we do</h2>
-      <div>
-        <p class="muted">We design, build, and publish Android apps. Each one solves a single problem well, is easy to pick up, and respects the person using it.</p>
-        <div class="grid">
-          <div class="item">
-            <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
-            <h3>Maintenance tracking</h3>
-            <p>Record oil changes, tuning jobs, and service history for every vehicle you own.</p>
+  <section id="experience">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Our experience</h2>
+        <p>We come from a computer science background and have hands-on experience building games in Unity and apps in Flutter, from the first prototype to a store-ready build.</p>
+      </div>
+      <div class="exp">
+        <div class="log">
+          <div class="entry">
+            <div class="thumb t1"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 34A16 16 0 0 1 40 34" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="5" stroke-linecap="round"/><path d="M8 34A16 16 0 0 1 40 34" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-dasharray="34 60" class="mprog"/><line class="mneedle" x1="24" y1="34" x2="24" y2="16" stroke="#ff8a73" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="34" r="3.5" fill="#fff"/></svg></div>
+            <div><h3>MoToil, a maintenance tracker</h3><p>A Flutter app that logs oil changes and tuning jobs and reminds you when the next one is due. Local notifications, offline storage with Hive, and Firebase behind it.</p><span class="tg"><b>Flutter</b><b>Firebase</b><b>Hive</b><b>Notifications</b></span></div>
           </div>
-          <div class="item">
-            <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></div>
-            <h3>Timely reminders</h3>
-            <p>Get notified when service is due, based on the schedule you set.</p>
+          <div class="entry">
+            <div class="thumb t2"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M20 22H28L40 44H8z" fill="#1a1438"/><line class="mroad" x1="24" y1="22" x2="24" y2="44" stroke="#fff" stroke-width="2" stroke-dasharray="4 5"/><rect x="19" y="34" width="10" height="6" rx="2" fill="#ff5a3c"/><rect x="21" y="35.2" width="6" height="2" rx="1" fill="#2b2150"/></svg></div>
+            <div><h3>Rally racing game</h3><p>A mobile rally game built in Unity with a physics-based car controller, tuned so it feels good on a touch screen.</p><span class="tg"><b>Unity</b><b>C#</b><b>Vehicle physics</b></span></div>
           </div>
-          <div class="item">
-            <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></div>
-            <h3>Clear records</h3>
-            <p>Keep a simple, readable log to check before a service or when selling a vehicle.</p>
+          <div class="entry">
+            <div class="thumb t3"><svg viewBox="0 0 48 48" aria-hidden="true"><g class="msteer"><circle cx="24" cy="24" r="15" fill="none" stroke="#14112b" stroke-width="4"/><path d="M24 24V39M24 24L11 17M24 24L37 17" stroke="#14112b" stroke-width="3.5" stroke-linecap="round"/><circle cx="24" cy="24" r="4.5" fill="#ff5a3c"/></g></svg></div>
+            <div><h3>Truck parking game</h3><p>A parking game with a heavy-truck controller and an on-screen steering wheel that responds to your thumb.</p><span class="tg"><b>Unity</b><b>Touch UI</b><b>Controllers</b></span></div>
           </div>
-          <div class="item">
-            <div class="ic"><svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
-            <h3>Built for Android</h3>
-            <p>Apps built with Flutter and published through Google Play.</p>
+        </div>
+        <div class="orbit" role="img" aria-label="Tools we use: Flutter, Dart, Unity, C#, Firebase and Hive">
+          <div class="core"><svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="#3a2bff"/><path d="M9 30V14l11 11 11-11v16" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="20" cy="9" r="3" fill="#ff5a3c"/></svg></div>
+          <div class="oring">
+            <span style="--a:0deg"><b>Flutter</b></span><span style="--a:60deg"><b>Dart</b></span><span style="--a:120deg"><b>Unity</b></span>
+            <span style="--a:180deg"><b>C#</b></span><span style="--a:240deg"><b>Firebase</b></span><span style="--a:300deg"><b>Hive</b></span>
           </div>
         </div>
       </div>
@@ -276,112 +527,273 @@
   </section>
 
   <section id="how">
-    <div class="wrap cols reveal">
-      <h2>How we do it</h2>
-      <ol class="steps" id="steps">
-        <div class="fill" id="stepfill"></div>
-        <li>
-          <strong>Start with a real problem</strong>
-          <span>Every app begins with a task people actually struggle to keep track of, not a feature list.</span>
-        </li>
-        <li>
-          <strong>Keep it focused</strong>
-          <span>We include what the job needs and leave out the rest, so the app stays fast and easy to use.</span>
-        </li>
-        <li>
-          <strong>Build and test carefully</strong>
-          <span>We build with Flutter, test on real devices, and check reminders and data handling before every release.</span>
-        </li>
-        <li>
-          <strong>Follow the rules</strong>
-          <span>Our apps are built to comply with Google Play policies, and we handle user data only as far as the app needs to work.</span>
-        </li>
-        <li>
-          <strong>Improve with feedback</strong>
-          <span>We read user reviews and ship updates that fix problems and add what people ask for.</span>
-        </li>
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>How we work</h2>
+        <p>We build with Flutter, Unity, and Firebase, and test on real devices before every release.</p>
+      </div>
+      <ol class="steps">
+        <li><strong>Pick one problem</strong><span>Each project starts with a clear task to solve or a game worth playing.</span></li>
+        <li><strong>Keep it focused</strong><span>We include what the product needs and leave out the rest.</span></li>
+        <li><strong>Build and test</strong><span>Real devices, real scenarios, before anything ships.</span></li>
+        <li><strong>Listen and improve</strong><span>We follow Google Play policies, read reviews, and ship updates people ask for.</span></li>
       </ol>
     </div>
   </section>
 
-  <section id="apps">
-    <div class="wrap cols reveal">
-      <h2>Our apps</h2>
-      <div class="app">
-        <h3>MoToil: Oil Change Tracker</h3>
-        <p>An Android app that tracks oil changes and tuning jobs and reminds you when the next one is due.</p>
-        <div class="tags"><span>Service log</span><span>Maintenance reminders</span><span>Vehicle history</span></div>
-        <p class="pkg">com.rmforgelabs.motoil</p>
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Our work</h2>
       </div>
+      <div class="work">
+        <div class="panel a">
+          <svg class="art gauge" viewBox="0 0 200 170" aria-hidden="true">
+            <defs>
+              <radialGradient id="gBz" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".5" stop-color="#a8a2e6"/><stop offset="1" stop-color="#4b4496"/></radialGradient>
+              <radialGradient id="gFc" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#3a3380"/><stop offset="1" stop-color="#14112b"/></radialGradient>
+              <linearGradient id="gPr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8f84ff"/><stop offset="1" stop-color="#3a2bff"/></linearGradient>
+              <radialGradient id="gHb" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#9a95c9"/></radialGradient>
+              <linearGradient id="gDr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb199"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient>
+            </defs>
+            <ellipse cx="100" cy="160" rx="66" ry="7" fill="#14112b" opacity=".3"/>
+            <circle cx="100" cy="86" r="76" fill="url(#gBz)"/>
+            <circle cx="100" cy="86" r="69" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>
+            <circle cx="100" cy="86" r="66" fill="url(#gFc)"/>
+            <g fill="#4b4496"><circle cx="49.8" cy="35.8" r="2.2"/><circle cx="150.2" cy="35.8" r="2.2"/><circle cx="49.8" cy="136.2" r="2.2"/><circle cx="150.2" cy="136.2" r="2.2"/></g>
+            <path d="M54 88A46 46 0 0 1 146 88" fill="none" stroke="#2f2a6b" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+            <path class="prog" d="M54 88A46 46 0 0 1 146 88" fill="none" stroke="url(#gPr)" stroke-width="10" stroke-linecap="round" pathLength="100"/>
+            <path d="M44 88A56 56 0 0 1 156 88" fill="none" stroke="#8f89c9" stroke-width="3" stroke-dasharray="1 4" pathLength="100"/>
+            <text x="44" y="108" fill="#cfc9ff" font-size="8" font-weight="700" text-anchor="middle">0</text>
+            <text x="156" y="108" fill="#cfc9ff" font-size="8" font-weight="700" text-anchor="middle">5k</text>
+            <g class="needle"><polygon points="96.5,88 100,38 103.5,88" fill="#ff5a3c"/></g>
+            <circle cx="100" cy="88" r="9" fill="url(#gHb)"/>
+            <rect x="64" y="114" width="72" height="22" rx="6" fill="#0b0a1d" stroke="#3a3380"/>
+            <path d="M75 119c-3 3.5-4.6 5.6-4.6 7.8a4.6 4.6 0 0 0 9.2 0c0-2.2-1.6-4.3-4.6-7.8z" fill="url(#gDr)"/>
+            <text x="84" y="129.5" fill="#a79fff" font-size="10" font-weight="800">1,240 km</text>
+            <path d="M44 56Q70 22 112 24Q80 34 62 62z" fill="#fff" opacity=".14"/>
+            <g class="bell"><circle cx="164" cy="22" r="13" fill="#ff5a3c" stroke="#fff" stroke-width="2.5"/><path d="M164 15a5.5 5.5 0 0 1 5.5 5.5v3.5l2 3h-15l2-3v-3.5A5.5 5.5 0 0 1 164 15z" fill="#fff"/><circle cx="164" cy="29.2" r="1.8" fill="#fff"/></g>
+          </svg>
+          <h3>MoToil: Oil Change Tracker</h3>
+          <p>An Android app that tracks oil changes and tuning jobs and reminds you when the next one is due.</p>
+          <div class="tags"><span>Android app</span><span>Flutter</span><span>Reminders</span></div>
+          <p class="pkg">com.rmforgelabs.motoil</p>
+        </div>
+        <div class="panel g">
+          <svg class="art carart" viewBox="0 0 240 130" aria-hidden="true">
+            <defs>
+              <clipPath id="cClip"><rect x="0" y="0" width="240" height="122" rx="14"/></clipPath>
+              <linearGradient id="cSk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3ee"/><stop offset="1" stop-color="#ffc9b8"/></linearGradient>
+              <linearGradient id="cBd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a82"/><stop offset=".45" stop-color="#ff5a3c"/><stop offset="1" stop-color="#b8341c"/></linearGradient>
+              <linearGradient id="cGl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a72d6"/><stop offset="1" stop-color="#1c1740"/></linearGradient>
+              <linearGradient id="cBm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></linearGradient>
+              <radialGradient id="cTr" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#4a4a5c"/><stop offset="1" stop-color="#0b0b10"/></radialGradient>
+              <radialGradient id="cRm" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#a9a3dd"/></radialGradient>
+            </defs>
+            <g clip-path="url(#cClip)">
+              <rect width="240" height="122" fill="url(#cSk)"/>
+              <circle cx="190" cy="32" r="15" fill="#fff6d6"/>
+              <g class="hills2"><path d="M0 92Q40 54 80 84T160 80T240 92V122H0z" fill="#d6d1ff"/><path transform="translate(240 0)" d="M0 92Q40 54 80 84T160 80T240 92V122H0z" fill="#d6d1ff"/></g>
+              <g class="hills1"><path d="M0 104Q30 76 60 98T120 94T180 100T240 104V122H0z" fill="#a49ee0"/><path transform="translate(240 0)" d="M0 104Q30 76 60 98T120 94T180 100T240 104V122H0z" fill="#a49ee0"/></g>
+              <line class="sl" x1="70" y1="50" x2="108" y2="50" stroke="#14112b" stroke-width="3" stroke-linecap="round"/>
+              <line class="sl" x1="44" y1="66" x2="94" y2="66" stroke="#14112b" stroke-width="3" stroke-linecap="round"/>
+              <line class="sl" x1="76" y1="82" x2="110" y2="82" stroke="#14112b" stroke-width="3" stroke-linecap="round"/>
+              <rect x="0" y="112" width="240" height="10" fill="#14112b"/>
+              <line class="road" x1="0" y1="117" x2="240" y2="117" stroke="#fff" stroke-width="2" opacity=".8"/>
+              <ellipse cx="120" cy="113" rx="96" ry="6" fill="#000" opacity=".35"/>
+              <polygon class="beam" points="212,80 240,66 240,96" fill="url(#cBm)"/>
+              <g class="dust"><circle cx="46" cy="110" r="5" fill="#fff"/><circle cx="46" cy="110" r="5" fill="#fff"/><circle cx="46" cy="110" r="5" fill="#fff"/></g>
+              <g class="dust ex"><circle cx="20" cy="93" r="3.5" fill="#cfc9ff"/><circle cx="20" cy="93" r="3.5" fill="#cfc9ff"/><circle cx="20" cy="93" r="3.5" fill="#cfc9ff"/></g>
+              <g class="body">
+                <rect x="16" y="56" width="32" height="5" rx="2.5" fill="#14112b"/>
+                <path d="M24 61V76M42 61V70" stroke="#14112b" stroke-width="2.5"/>
+                <path d="M24 90Q24 74 40 70L56 66L70 46Q74 40 84 40H130Q140 40 146 48L162 66L196 72Q212 76 212 90V98H24z" fill="url(#cBd)"/>
+                <path d="M76 50Q78 46 84 46H104V66H66zM110 46H130Q136 46 140 51L152 66H110z" fill="url(#cGl)"/>
+                <path d="M74 46Q78 41 86 41H128" fill="none" stroke="#fff" stroke-width="2" opacity=".5" stroke-linecap="round"/>
+                <path d="M68 52l-9 4v5l10-2z" fill="#14112b"/>
+                <path d="M107 66V97" stroke="#14112b" stroke-width="1.5" opacity=".35"/>
+                <rect x="98" y="75" width="8" height="2.4" rx="1.2" fill="#14112b" opacity=".6"/>
+                <path d="M26 82H210" stroke="#14112b" stroke-width="3" opacity=".22"/>
+                <circle cx="130" cy="86" r="7.5" fill="#fff"/>
+                <text x="130" y="89" fill="#14112b" font-size="8" font-weight="800" text-anchor="middle">07</text>
+                <rect x="36" y="93" width="164" height="6" rx="3" fill="#14112b" opacity=".35"/>
+                <ellipse cx="206" cy="80" rx="5" ry="3" fill="#fff3c4"/>
+                <rect x="199" y="87" width="7" height="3" rx="1.5" fill="#fff3c4"/>
+                <rect x="24" y="76" width="4" height="7" rx="1" fill="#ffd9a0"/>
+                <rect x="20" y="91" width="7" height="3" rx="1" fill="#6f69a8"/>
+                <circle cx="64" cy="98" r="18" fill="#14112b"/>
+                <circle cx="172" cy="98" r="18" fill="#14112b"/>
+                <g class="wheel" style="transform-origin:64px 98px"><circle cx="64" cy="98" r="15" fill="url(#cTr)"/><circle cx="64" cy="98" r="8.5" fill="url(#cRm)"/><path d="M64 90V106M56 98H72" stroke="#14112b" stroke-width="2"/><circle cx="64" cy="98" r="2.5" fill="#14112b"/></g>
+                <g class="wheel" style="transform-origin:172px 98px"><circle cx="172" cy="98" r="15" fill="url(#cTr)"/><circle cx="172" cy="98" r="8.5" fill="url(#cRm)"/><path d="M172 90V106M164 98H180" stroke="#14112b" stroke-width="2"/><circle cx="172" cy="98" r="2.5" fill="#14112b"/></g>
+              </g>
+            </g>
+          </svg>
+          <h3>Mobile games</h3>
+          <p>Racing and driving games built in Unity, with physics-based vehicle controls designed for touch screens.</p>
+          <div class="tags"><span>Android games</span><span>Unity</span><span>Racing and parking</span></div>
+          <p class="pkg">Built with Unity</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="open">
+    <div class="wrap">
+      <div class="openbox">
+        <div>
+          <div class="pill"><i></i>Open to new projects</div>
+          <h2>Always open to work. Every challenge is welcome.</h2>
+          <p>Big idea or small fix, a new build or a rescue job, we are glad to hear about it. Requirements change, deadlines move, and problems turn out harder than expected. We welcome all of that and look forward to working through it with you.</p>
+          <div class="btns"><a class="btn solid" href="mailto:rmforgelabs@gmail.com?subject=New%20project%20with%20RM%20Forge%20Labs">Email us your idea</a><a class="btn line" href="#faq">Read the questions</a></div>
+        </div>
+        <svg class="peak" viewBox="0 0 240 170" aria-hidden="true">
+          <defs>
+            <linearGradient id="pkA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a90ff"/><stop offset="1" stop-color="#4b3fd6"/></linearGradient>
+            <linearGradient id="pkB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e6e3ff"/><stop offset="1" stop-color="#b9b3ee"/></linearGradient>
+          </defs>
+          <circle cx="198" cy="34" r="14" fill="#ffd9a0"/>
+          <g class="cloud"><ellipse cx="50" cy="38" rx="22" ry="8" fill="#fff" opacity=".85"/><ellipse cx="64" cy="33" rx="14" ry="7" fill="#fff" opacity=".85"/></g>
+          <ellipse cx="120" cy="156" rx="100" ry="7" fill="#14112b" opacity=".18"/>
+          <path d="M0 152L60 74L100 112L142 54L240 152z" fill="url(#pkB)"/>
+          <path d="M22 152L120 30L220 152z" fill="url(#pkA)"/>
+          <path d="M120 30L220 152H120z" fill="#14112b" opacity=".2"/>
+          <path d="M120 30L98 66L110 61L120 73L132 61L142 66z" fill="#fff"/>
+          <path class="trail" d="M44 150Q86 134 72 114T114 86T120 54" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          <line x1="120" y1="30" x2="120" y2="8" stroke="#14112b" stroke-width="2.5" stroke-linecap="round"/>
+          <path class="flag" d="M121 9L148 16L121 24z" fill="#ff5a3c"/>
+        </svg>
+      </div>
+      <div class="marq2" aria-hidden="true"><div><span>Tight deadlines</span><span>New ideas</span><span>Changing requirements</span><span>Complex physics</span><span>Performance limits</span><span>Fresh platforms</span><span>Rescue jobs</span><span>Tight deadlines</span><span>New ideas</span><span>Changing requirements</span><span>Complex physics</span><span>Performance limits</span><span>Fresh platforms</span><span>Rescue jobs</span></div></div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head"><h2>Questions</h2><p>Short answers to what people ask us most.</p></div>
+      <div class="faq">
+        <details><summary>What do you build?</summary><p>Android apps and mobile games. Apps are built with Flutter and Firebase, and games are built in Unity.</p></details>
+        <details><summary>Can you take on my project?</summary><p>Yes. We are open to new work of any size, from a small fix to a full app or game. Send us a short email about the idea.</p></details>
+        <details><summary>What if the requirements change?</summary><p>That is normal, and we welcome it. We talk through what the change means, then adjust the plan together.</p></details>
+        <details><summary>Do you help after launch?</summary><p>Yes. We fix bugs, add features, and keep builds working with new Android versions.</p></details>
+        <details><summary>How do we get started?</summary><p>Email rmforgelabs@gmail.com with a few lines about what you want to build. We will reply and take it from there.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="contact">
+    <div class="wrap">
+      <div>
+        <h2>Have an idea? Let's build it.</h2>
+        <p class="cnote">Tell us a few lines about your app or game, a rough timeline if you have one, and any challenges you already know about. We welcome all of it.</p>
+        <a class="mail" href="mailto:rmforgelabs@gmail.com?subject=New%20project%20with%20RM%20Forge%20Labs">rmforgelabs@gmail.com</a>
+      </div>
+      <svg class="mailart" viewBox="0 0 220 170" aria-hidden="true">
+        <defs>
+          <linearGradient id="mFr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7f5ff"/><stop offset="1" stop-color="#c9c3f5"/></linearGradient>
+          <linearGradient id="mBk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b3acee"/><stop offset="1" stop-color="#8a83cf"/></linearGradient>
+        </defs>
+        <ellipse class="msh" cx="110" cy="162" rx="78" ry="6" fill="#14112b" opacity=".25"/>
+        <g class="menv">
+          <rect x="20" y="62" width="180" height="92" rx="12" fill="url(#mBk)"/>
+          <polygon points="24,66 196,66 110,14" fill="#a49ee0"/>
+          <g class="mpaper">
+            <rect x="46" y="38" width="128" height="96" rx="6" fill="#fff"/>
+            <rect x="60" y="54" width="64" height="7" rx="3.5" fill="#cfc9ff"/>
+            <rect x="60" y="70" width="98" height="6" rx="3" fill="#e6e3ff"/>
+            <rect x="60" y="84" width="84" height="6" rx="3" fill="#e6e3ff"/>
+            <rect x="60" y="98" width="52" height="6" rx="3" fill="#e6e3ff"/>
+            <circle cx="150" cy="112" r="8" fill="#ff5a3c"/>
+          </g>
+          <path d="M20 152V76Q20 68 28 72L110 116L192 72Q200 68 200 76V152Q200 154 188 154H32Q20 154 20 144z" fill="url(#mFr)"/>
+          <path d="M28 72L110 116L192 72" fill="none" stroke="#fff" stroke-width="2" opacity=".7"/>
+          <g class="mbadge"><circle cx="196" cy="58" r="15" fill="#ff5a3c" stroke="#fff" stroke-width="3"/><text x="196" y="63" fill="#fff" font-size="14" font-weight="800" text-anchor="middle">1</text></g>
+        </g>
+      </svg>
     </div>
   </section>
 </main>
 
 <footer>
-  <div class="wrap">
-    <span>&copy; 2026 RM Forge Labs. All rights reserved.</span>
-    <span>Independent Android app studio</span>
+  <div class="wrap fgrid">
+    <div class="fcol">
+      <a class="brand" href="#top"><svg viewBox="0 0 40 40" aria-hidden="true" style="width:2.2rem;height:2.2rem"><rect width="40" height="40" rx="11" fill="#3a2bff"/><path d="M9 30V14l11 11 11-11v16" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="20" cy="9" r="3" fill="#ff5a3c"/></svg>RM Forge Labs</a>
+      <p>An independent studio building practical Android apps and fun mobile games.</p>
+      <div class="pill"><i></i>Open to new projects</div>
+    </div>
+    <div class="fcol"><h4>Explore</h4><a href="#what">What we do</a><a href="#experience">Experience</a><a href="#how">How we work</a><a href="#work">Our work</a><a href="#faq">Questions</a></div>
+    <div class="fcol"><h4>Get in touch</h4><a href="mailto:rmforgelabs@gmail.com">rmforgelabs@gmail.com</a><a href="#top">Back to top</a></div>
   </div>
+  <div class="wrap fbar"><span>&copy; 2026 RM Forge Labs. All rights reserved.</span><span>Independent mobile app and game studio</span></div>
 </footer>
 
 <script>
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var odo = document.getElementById('odo');
-  var fill = document.getElementById('fill');
-  var target = 1240, pct = 76;
-
-  function fmt(n) { return n.toLocaleString('en-US'); }
-
-  if (reduce) {
-    odo.textContent = fmt(target);
-    fill.style.transition = 'none';
-    fill.style.width = pct + '%';
-  } else {
-    var start = null, dur = 2200;
-    setTimeout(function () {
-      fill.style.width = pct + '%';
-      requestAnimationFrame(function tick(t) {
-        if (!start) start = t;
-        var p = Math.min((t - start) / dur, 1);
-        var e = 1 - Math.pow(1 - p, 3);
-        odo.textContent = fmt(Math.round(target * e));
-        if (p < 1) requestAnimationFrame(tick);
-      });
-    }, 700);
+  var phone = document.getElementById('phone');
+  var btns = document.querySelectorAll('.switch button');
+  var timer;
+  function setMode(m) {
+    phone.setAttribute('data-mode', m);
+    btns.forEach(function (x) { x.setAttribute('aria-pressed', x.getAttribute('data-mode') === m ? 'true' : 'false'); });
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { clearInterval(timer); setMode(b.getAttribute('data-mode')); });
+  });
+  if (!reduce) {
+    timer = setInterval(function () { setMode(phone.getAttribute('data-mode') === 'game' ? 'app' : 'game'); }, 5500);
   }
 
-  // Scroll reveal
-  var items = document.querySelectorAll('.reveal');
+  var h = document.getElementById('headline');
+  if (h && !reduce) {
+    h.innerHTML = h.textContent.trim().split(/\s+/).map(function (w, i) {
+      return '<span class="w" style="--i:' + i + '">' + w + '</span>';
+    }).join(' ');
+  }
+
+  var stage = document.querySelector('.stage');
+  if (!reduce && window.matchMedia('(pointer: fine)').matches) {
+    stage.addEventListener('mousemove', function (e) {
+      var r = stage.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      phone.style.setProperty('--ry', (x * 14) + 'deg');
+      phone.style.setProperty('--rx', (-y * 10) + 'deg');
+    });
+    stage.addEventListener('mouseleave', function () {
+      phone.style.setProperty('--ry', '0deg');
+      phone.style.setProperty('--rx', '0deg');
+    });
+  }
+
+  var els = document.querySelectorAll('.sec-head, .mission, .list > div, .steps li, .panel, .entry, .orbit, .openbox, .faq details, .contact h2, .contact .mail, .cnote');
+  els.forEach(function (el) {
+    el.classList.add('reveal');
+    var idx = Array.prototype.indexOf.call(el.parentNode.children, el);
+    el.style.setProperty('--d', (idx * 0.09) + 's');
+  });
   if ('IntersectionObserver' in window && !reduce) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
       });
-    }, { threshold: 0.12 });
-    items.forEach(function (el) { io.observe(el); });
+    }, { threshold: 0.15 });
+    els.forEach(function (el) { io.observe(el); });
   } else {
-    items.forEach(function (el) { el.classList.add('in'); });
+    els.forEach(function (el) { el.classList.add('in'); });
   }
-
-  // Process line fills as you scroll
-  var list = document.getElementById('steps');
-  var lis = list.querySelectorAll('li');
-  var line = document.getElementById('stepfill');
-  function update() {
-    var r = list.getBoundingClientRect();
-    var vh = window.innerHeight;
-    var prog = (vh * 0.6 - r.top) / r.height;
-    prog = Math.max(0, Math.min(1, prog));
-    line.style.height = (prog * (r.height - 12)) + 'px';
-    lis.forEach(function (li) {
-      var lr = li.getBoundingClientRect();
-      li.classList.toggle('on', lr.top < vh * 0.6);
+  if (!reduce && window.matchMedia('(pointer: fine)').matches) {
+    document.querySelectorAll('.panel').forEach(function (p) {
+      p.addEventListener('mousemove', function (e) {
+        var r = p.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        p.style.setProperty('--ry', (x * 10) + 'deg');
+        p.style.setProperty('--rx', (-y * 8) + 'deg');
+      });
+      p.addEventListener('mouseleave', function () {
+        p.style.setProperty('--ry', '0deg');
+        p.style.setProperty('--rx', '0deg');
+      });
     });
   }
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update);
-  update();
 })();
 </script>
 </body>
